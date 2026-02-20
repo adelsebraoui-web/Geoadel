@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vinkelmätare</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #1a1a1a; color: white; transition: background 0.2s; }
+        #val { font-size: 5rem; font-weight: bold; margin-bottom: 20px; }
+        .box { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; text-align: center; width: 80%; }
+        input { width: 50px; padding: 10px; margin: 5px; border-radius: 5px; border: none; text-align: center; }
+        button { width: 100%; padding: 15px; margin-top: 10px; border-radius: 10px; border: none; font-weight: bold; background: #007AFF; color: white; }
+    </style>
+</head>
+<body>
+    <div id="val">--°</div>
+    <div class="box">
+        Min: <input type="number" id="minV" value="-1"> 
+        Max: <input type="number" id="maxV" value="1">
+        <button onclick="starta()">1. STARTA MÄTNING</button>
+        <button onclick="nolla()" style="background:#555">2. NOLLSTÄLL (GÖR TILL 0°)</button>
+    </div>
+
+    <script>
+        let offset = 0;
+        let nuvarandeRaw = 0;
+
+        function starta() {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission().then(res => {
+                    if (res == 'granted') window.addEventListener('deviceorientation', hantera);
+                });
+            } else {
+                window.addEventListener('deviceorientation', hantera);
+            }
+        }
+
+        function hantera(e) {
+            nuvarandeRaw = e.beta; 
+            let vinkel = (nuvarandeRaw - offset).toFixed(1);
+            document.getElementById('val').innerText = vinkel + "°";
+            
+            let min = parseFloat(document.getElementById('minV').value);
+            let max = parseFloat(document.getElementById('maxV').value);
+            
+            if (vinkel >= min && vinkel <= max) {
+                document.body.style.backgroundColor = "green";
+            } else {
+                document.body.style.backgroundColor = "red";
+            }
+        }
+
+        function nolla() {
+            offset = nuvarandeRaw;
+        }
+    </script>
+</body>
+</html>
